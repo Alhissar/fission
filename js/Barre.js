@@ -4,6 +4,8 @@ import {D, SPACE, X0} from './constants.js';
 export default class BarreUranium {
     constructor (grid) {
         this.grid = grid;
+        this.deads = 0;
+        this.popNumber = grid.x * grid.y;
         this.uranium = {
             pos: {
                 x: 0,
@@ -30,26 +32,55 @@ export default class BarreUranium {
         for (let Y = 0; Y < this.grid.y; Y += 1) {
             for (let X = 0; X < this.grid.x; X += 1) {
                 const {pos, color, dead, dying} = this.population[Y][X];
-                // electron
-                let x, y;
-                let dx = (Math.random() < 0.15) ? 2 : 0;
+                // Radiatif ? Vibration !
+                let dx = (Math.random() < 0.15 && dead) ? 2 : 0;
                 dx *= (Math.random() < 0.5) ? -1 : 1;
-                let dy = (Math.random() < 0.15) ? 2 : 0;
+                let dy = (Math.random() < 0.15 && dead) ? 2 : 0;
                 dy *= (Math.random() < 0.5) ? -1 : 1;
-                circle(pos.x + dx, pos.y + dy, D, '#555');
+                // electron
+                circle({
+                    x: pos.x + dx,
+                    y: pos.y + dy,
+                    d: D,
+                    color: '#555',
+                    canvas: 'screen',
+                });
                 // noyau
                 if (!dead) {
-                    disc(pos.x + dx / 2, pos.y + dy / 2, D/2.5, color);
+                    disc({
+                        x: pos.x + dx / 2,
+                        y : pos.y + dy / 2,
+                        d: D / 2.5,
+                        color,
+                        canvas: 'screen',
+                    });
                 } else {
                     let diam = D/4;
                     const space = diam * 0.9;
-                    disc(pos.x - space + dx, pos.y - space + dy, diam, color);
-                    disc(pos.x + space + dx, pos.y + space + dy, diam, color);
-                    // DYING ?
+                    disc({
+                        x: pos.x - space + dx,
+                        y: pos.y - space + dy,
+                        d: diam,
+                        color,
+                        canvas: 'screen',
+                    });
+                    disc({
+                        x: pos.x + space + dx,
+                        y: pos.y + space + dy,
+                        d: diam,
+                        color,
+                        canvas: 'screen',
+                    });
+                    // DYING ? FLASH !
                     if (dying > 0) {
                         diam = diam * dying / 1.5;
-                        disc(pos.x + space + dx, pos.y + space + dy, diam, '#fff');
-
+                        disc({
+                            x: pos.x + space + dx,
+                            y: pos.y + space + dy,
+                            d: diam,
+                            color: '#fff',
+                            canvas: 'screen',
+                        });
                     }
                 }
             }
@@ -57,12 +88,12 @@ export default class BarreUranium {
     }
 
     fission(x, y) {
-        // TODO Animation
         const dying = 10;
         const dechet = {...this.dechet};
         const pos = {...this.population[y][x]};
         const new1 = {...dechet, pos, dying};
         this.population[y][x] = new1;
+        this.deads += 1;
     }
 
     update() {

@@ -1,7 +1,13 @@
-const $canvas = document.querySelector("#screen");
-const ctx = $canvas.getContext('2d');
-export const $ = {
-    ctx,
-    CW: ctx.canvas.width,
-    CH: ctx.canvas.height
-}
+const divs = ['screen', 'collisions'];
+const $ = {};
+
+divs.forEach((name) => {
+    const ctx = document.querySelector(`#${name}`).getContext('2d');
+    $[name] = {
+        ctx,
+        CW: ctx.canvas.width,
+        CH: ctx.canvas.height,
+    };
+});
+
+export default $;
