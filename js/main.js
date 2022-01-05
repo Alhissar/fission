@@ -16,12 +16,14 @@ const loop = (time) => {
     collisions.update(BARRE.deads);
 
     $.screen.ctx.clearRect(0, 0, $.screen.CW, $.screen.CH);
-    
-    if (neutrons.population.length > 0) collisions.draw();
+    collisions.draw();
     neutrons.draw();
     BARRE.draw();
-
-    requestAnimationFrame(loop);
+    if (neutrons.population.length === 0 && BARRE.deads != 0) {
+        cancelAnimationFrame(anim);
+    } else {
+        requestAnimationFrame(loop);
+    }
 };
 
-loop();
+const anim = requestAnimationFrame(loop);

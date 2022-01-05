@@ -1,4 +1,4 @@
-import {circle, disc} from './drawing.js';
+import {drawSprite, disc, noyau} from './drawing.js';
 import {D, SPACE, X0} from './constants.js';
 
 export default class BarreUranium {
@@ -20,6 +20,21 @@ export default class BarreUranium {
             dead: true
         }
         this.population = this.createPopulation();
+        this.vibe = [[-2, -2], [-2, 2], [0, 0], [2, -2], [2, 2]];
+        // création des sprites
+        // this.sprites = [dead, alive]
+        this.sprites = [];
+        const deadSprite = document.createElement('canvas');
+        deadSprite.width = D * 2;
+        deadSprite.height = D * 2;
+        noyau(deadSprite, {x: 0, y: 0, dead: true, D});
+        // on dessine le noyau (dead ou pas) dans les sprites
+        const livingSprite = document.createElement('canvas');
+        livingSprite.width = D * 2;
+        livingSprite.height = D * 2;
+        noyau(livingSprite, {x: 0, y: 0, dead: false, D});
+        this.sprites.push(deadSprite, livingSprite);
+        // 
     }
     
     createPopulation() {
@@ -29,62 +44,49 @@ export default class BarreUranium {
     }
 
     draw() {
+        const flashes = [];
+        const proba = 0.3;
+        const ctx = 'screen';
         for (let Y = 0; Y < this.grid.y; Y += 1) {
             for (let X = 0; X < this.grid.x; X += 1) {
                 const {pos, color, dead, dying} = this.population[Y][X];
                 // Radiatif ? Vibration !
-                let dx = (Math.random() < 0.15 && dead) ? 2 : 0;
-                dx *= (Math.random() < 0.5) ? -1 : 1;
-                let dy = (Math.random() < 0.15 && dead) ? 2 : 0;
-                dy *= (Math.random() < 0.5) ? -1 : 1;
-                // electron
-                circle({
-                    x: pos.x + dx,
-                    y: pos.y + dy,
-                    d: D,
-                    color: '#555',
-                    canvas: 'screen',
-                });
+                let dx = 0, dy = 0;
+                const rand = Math.random();
+                if (dead & rand < proba) {
+                    const indice = Math.floor(rand * 5 / proba);
+                    [dx, dy] = this.vibe[indice];
+                };
                 // noyau
+                // vivant
                 if (!dead) {
-                    disc({
-                        x: pos.x + dx / 2,
-                        y : pos.y + dy / 2,
-                        d: D / 2.5,
-                        color,
-                        canvas: 'screen',
-                    });
+                    drawSprite(this.sprites[1], pos);
                 } else {
-                    let diam = D/4;
-                    const space = diam * 0.9;
-                    disc({
-                        x: pos.x - space + dx,
-                        y: pos.y - space + dy,
-                        d: diam,
-                        color,
-                        canvas: 'screen',
-                    });
-                    disc({
-                        x: pos.x + space + dx,
-                        y: pos.y + space + dy,
-                        d: diam,
-                        color,
-                        canvas: 'screen',
-                    });
+                    // mort : on ajoute vibration dx, dy
+                    const x = pos.x + dx;
+                    const y = pos.y + dy;
+                    drawSprite(this.sprites[0], {x, y});
                     // DYING ? FLASH !
                     if (dying > 0) {
-                        diam = diam * dying / 1.5;
-                        disc({
-                            x: pos.x + space + dx,
-                            y: pos.y + space + dy,
-                            d: diam,
-                            color: '#fff',
-                            canvas: 'screen',
+                        flashes.push({
+                            x: pos.x + dx,
+                            y: pos.y + dy,
+                            dying,
                         });
                     }
                 }
             }
         }
+            // affichage des flashes
+        flashes.forEach(({x, y, dying}) => {
+            disc({
+                x, y,
+                d: D * 0.2 * dying,
+                color: '#fff',
+                canvas: 'screen',
+            });
+
+        })
     }
 
     fission(x, y) {

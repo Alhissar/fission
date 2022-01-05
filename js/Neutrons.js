@@ -33,9 +33,9 @@ export default class Neutrons {
 
         // création d'un neutron (3 emitters)
         for (let i = 1; i <= 3; i += 1) {
-            if (Math.random() < 1/60 * 1 &&
+            if (Math.random() < 1/60 &&
                 (this.barre.deads / this.barre.popNumber) < 0.65) {
-                    this.population.push(this.create(0, i * $.screen.CH  * 0.25));
+                    this.population.push(this.create(0, $.screen.CH  * (Math.random() * 0.6 + 0.2)));
             }
         }
 
@@ -49,9 +49,11 @@ export default class Neutrons {
             const pos = {x, y};
             const grid = this.barre.toGrid(pos);
             // SENSIBILITE
-            const mini = 0.05;
-            if (grid.x >= 0 && grid.x <= this.barre.grid.x && Math.abs(grid.x - Math.round(grid.x)) < mini &&
-            grid.y >= 0 && grid.y <= this.barre.grid.y && Math.abs(grid.y - Math.round(grid.y)) < mini) {
+            const mini = 0.045;
+            if (grid.x >= 0 && grid.x <= this.barre.grid.x &&
+            Math.abs(grid.x - Math.round(grid.x)) < mini &&
+            grid.y >= 0 && grid.y <= this.barre.grid.y &&
+            Math.abs(grid.y - Math.round(grid.y)) < mini) {
                 // COLLISION ?
                 const X = Math.round(grid.x);
                 const Y = Math.round(grid.y);
@@ -61,8 +63,6 @@ export default class Neutrons {
                     newNeutrons.push(this.create(x, y, Math.PI * 2 * Math.random()));
                     newNeutrons.push(this.create(x, y, Math.PI * 2 * Math.random()));
                     angle = Math.PI * 2 * Math.random();
-                    // console.log(grid);
-                    // debugger;
                 }
             }
 
