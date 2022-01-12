@@ -5,7 +5,6 @@ function getContextOf(canvas) {
 }
 
 export function circle({canvas, x, y, d, color}) {
-    // const ctx = $[canvas].ctx;
     const ctx = getContextOf(canvas);
     ctx.beginPath();
     ctx.arc(
@@ -18,7 +17,6 @@ export function circle({canvas, x, y, d, color}) {
     }
 
 export function disc({canvas, x, y, d, color}) {
-    // const ctx = $[canvas].ctx;
     const ctx = getContextOf(canvas);
     ctx.beginPath();
     ctx.arc(
@@ -63,23 +61,22 @@ export function noyau(sprite, infos) {
         x: center.x - space,
         y: center.y - space,
         d: diam,
-        color: '#f66',
+        color: '#f22',
         canvas: sprite,
     });
     disc({
         x: center.x + space,
         y: center.y + space,
         d: diam,
-        color: '#f66',
+        color: '#f22',
         canvas: sprite,
     });
     return sprite;
 }
 
 export function drawSprite(sprite, pos, canvas = 'screen') {
-    const ctx = getContextOf(canvas);
-    const SpriteX = pos.x - sprite.width / 2;
-    const SpriteY = pos.y - sprite.width / 2;
-    ctx.drawImage(sprite, SpriteX, SpriteY);
+    getContextOf(canvas).drawImage(sprite,
+        pos.x - sprite.width / 2,
+        pos.y - sprite.width / 2);
     return sprite;
 }

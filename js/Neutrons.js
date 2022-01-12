@@ -21,7 +21,7 @@ export default class Neutrons {
         this.population.forEach(({x, y}) => {
             disc({ x, y ,
                 d : D / 5,
-                color : '#89f',
+                color : '#ff0',
                 canvas : 'screen',
             });
         });
@@ -29,34 +29,37 @@ export default class Neutrons {
 
     // UPDATE
     update() {
-        let newNeutrons = [];
+        const newNeutrons = [];
 
         // création d'un neutron (3 emitters)
         for (let i = 1; i <= 3; i += 1) {
             if (Math.random() < 1/60 &&
-                (this.barre.deads / this.barre.popNumber) < 0.65) {
-                    this.population.push(this.create(0, $.screen.CH  * (Math.random() * 0.6 + 0.2)));
+            (this.barre.deads / this.barre.popNumber) < 0.65) {
+                this.population.push(this.create(0, $.screen.CH  * (Math.random() * 0.6 + 0.2)));
             }
         }
 
         // DEPLACEMENT
-        this.population.forEach((neutron, i) => {
-            let {x, y, vel, angle} = neutron;
+        // cache grid
+        let grid, x, y, vel, angle, pos, X, Y;
+        // SENSIBILITE
+        const mini = 0.045;
+
+        this.population.forEach((neutron) => {
+            ({x, y, vel, angle} = neutron);
             // update x et y
             x += Math.cos(angle) * vel * 1/60;
             y += Math.sin(angle) * vel * 1/60;
             // verifier si collision
-            const pos = {x, y};
-            const grid = this.barre.toGrid(pos);
-            // SENSIBILITE
-            const mini = 0.045;
+            pos = {x, y};
+            grid = this.barre.toGrid(pos);
             if (grid.x >= 0 && grid.x <= this.barre.grid.x &&
             Math.abs(grid.x - Math.round(grid.x)) < mini &&
             grid.y >= 0 && grid.y <= this.barre.grid.y &&
             Math.abs(grid.y - Math.round(grid.y)) < mini) {
                 // COLLISION ?
-                const X = Math.round(grid.x);
-                const Y = Math.round(grid.y);
+                X = Math.round(grid.x);
+                Y = Math.round(grid.y);
                 if (X < this.barre.grid.x && Y < this.barre.grid.y &&
                     !this.barre.population[Y][X].dead) {
                     this.barre.fission(X, Y);
@@ -65,15 +68,13 @@ export default class Neutrons {
                     angle = Math.PI * 2 * Math.random();
                 }
             }
-
             // Ajout aux nouveaux neutrons si non-mort
             if (x >= 0 && x < $.screen.CW &
                 y >= 0 && y < $.screen.CH) {
-                    const newNeutron = this.create(x, y, angle);
-                    newNeutrons.push(newNeutron);
+                    newNeutrons.push(this.create(x, y, angle));
             }
-
         });
+
         // remplacement de la population mise à jour
         this.population = newNeutrons;
     }
